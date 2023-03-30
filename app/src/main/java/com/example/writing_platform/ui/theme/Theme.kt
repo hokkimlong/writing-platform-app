@@ -38,7 +38,7 @@ fun WritingplatformTheme(
 //    } else {
 //        LightColorPalette
 //    }
-  val colors = LightColorPalette
+    val colors = LightColorPalette
 
     MaterialTheme(
         colors = colors,
