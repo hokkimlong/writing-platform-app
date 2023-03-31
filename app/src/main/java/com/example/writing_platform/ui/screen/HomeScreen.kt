@@ -3,11 +3,15 @@ package com.example.writing_platform.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,8 +70,8 @@ fun Profile(name: String) {
 }
 
 @Composable
-fun Avatar(name: String) {
-    Box(
+fun Avatar(name: String="",onClick:()->Unit = {}) {
+    Column(
         modifier = Modifier
             .height(50.dp)
             .width(50.dp)
@@ -78,14 +82,22 @@ fun Avatar(name: String) {
                 1.dp,
                 MaterialTheme.colors.primary,
                 shape = CircleShape,
-            )
-
+            ).clickable {
+                       onClick()
+            }
+    , verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if(!name.isNullOrEmpty()){
         Text(
-            modifier = Modifier.align(Alignment.Center),
-            text = name.first().toString(),
+            text = name?.first().toString(),
             color = MaterialTheme.colors.primary,
             style = MaterialTheme.typography.h6
         )
+        }else{
+            Icon(
+                Icons.Filled.Person
+                , contentDescription = "person", tint = MaterialTheme.colors.primary)
+        }
     }
 }

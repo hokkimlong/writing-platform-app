@@ -28,6 +28,7 @@ private val LightColorPalette = lightColors(
     */
 )
 
+
 @Composable
 fun WritingplatformTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.writing_platform.ui.composable.Logo
+import com.example.writing_platform.ui.screen.Avatar
 import com.example.writing_platform.ui.screen.HomeScreen
 import com.example.writing_platform.ui.screen.SignInScreen
 import com.example.writing_platform.ui.screen.SignUpScreen
@@ -38,6 +41,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+
 @Preview
 @Composable
 fun Root(){
@@ -51,7 +56,14 @@ fun Root(){
             topBar = {
                 TopAppBar(
                     backgroundColor = MaterialTheme.colors.surface,
-                    title = { Logo() }
+                    title = { Logo() }  ,
+                    actions = {
+                        Avatar(onClick = {
+                            navController.navigate("signin"){
+                                pu
+                            }
+                        })
+                    },
                 )
             },
             content = {
@@ -74,8 +86,10 @@ fun Root(){
 //                }
 //            },
 //            isFloatingActionButtonDocked = true,
+
             )
     }
 }
+
 
 

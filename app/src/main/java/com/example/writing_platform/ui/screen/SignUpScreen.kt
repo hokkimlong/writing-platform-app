@@ -4,12 +4,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.writing_platform.ui.composable.PasswordTextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 
 @Composable
@@ -27,6 +32,11 @@ fun SignUpScreen(navController: NavController) {
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                var name by remember { mutableStateOf("") }
+                var email by remember { mutableStateOf("") }
+                var password by remember { mutableStateOf("") }
+                var confirmPassword by remember { mutableStateOf("") }
+
                 Text(
                     text = "Sign Up",
                     color = MaterialTheme.colors.primary,
@@ -34,28 +44,21 @@ fun SignUpScreen(navController: NavController) {
                     fontSize = 40.sp
                 )
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = name,
+                    onValueChange = { name = it },
                     label = { Text("Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = email,
+                    onValueChange = { email = it },
                     label = { Text("Email Address") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text("Password") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = { Text("Confirm Password") },
-                    modifier = Modifier.fillMaxWidth()
+                PasswordTextField(value = password, onValueChange = { password = it })
+                PasswordTextField(
+                    value = confirmPassword, onValueChange = { confirmPassword = it },
+                    label = "Confirm Password",
                 )
                 Button(onClick = { /*TODO*/ }, Modifier.fillMaxWidth()) {
                     Text("Sign Up")
