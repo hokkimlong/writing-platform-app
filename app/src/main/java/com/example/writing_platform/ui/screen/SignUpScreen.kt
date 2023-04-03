@@ -24,11 +24,10 @@ import com.example.writing_platform.ui.theme.PinkLight
 fun SignUpScreen(navController: NavController) {
     Column(
         modifier = Modifier
-            .padding(10.dp)
             .fillMaxHeight().background(PinkLight),
         verticalArrangement = Arrangement.Center
     ) {
-        Card() {
+        Card(Modifier.padding(10.dp)) {
             IconButton(onClick = {
                 navController.navigate("home")
             }, modifier = Modifier.padding(10.dp)) {
