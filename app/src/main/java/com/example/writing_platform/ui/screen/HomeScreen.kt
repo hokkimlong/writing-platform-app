@@ -1,48 +1,83 @@
 package com.example.writing_platform.ui.screen
 
-
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.writing_platform.ui.composable.Logo
 
-@Preview
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen() {
-    Column(
-        modifier = Modifier
-            .padding(10.dp)
-            .fillMaxHeight()
-            .fillMaxWidth()
+fun HomeScreen(navController: NavController) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colors.background
     ) {
-        Text(text = "Latest", fontSize = 30.sp, fontWeight = FontWeight.Light);
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            BlogCard()
-            BlogCard()
-            BlogCard()
-        }
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    backgroundColor = MaterialTheme.colors.surface,
+                    title = { Logo() },
+                    actions = {
+                        Avatar(onClick = {
+                            navController.navigate("signin")
+                        })
+                    },
+                )
+            },
+            content = {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                ) {
+                    item {
+                        Text(
+                            modifier = Modifier.padding(10.dp),
+                            text = "Latest",
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.Light
+                        );
+                    }
+                    items(10) {
+                        BlogCard()
+                        Spacer(modifier = Modifier.padding(5.dp))
+                    }
+                }
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { /* ... */ },
+                    elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp),
+                ) {
+                    /* FAB content */
+                    Icon(Icons.Filled.Create, contentDescription = "create")
+                }
+            },
+            isFloatingActionButtonDocked = true,
+
+            )
     }
 }
 
-@Preview
 @Composable
 fun BlogCard() {
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth().clickable {  }) {
         Column(Modifier.padding(10.dp)) {
             Profile(name = "Long")
             Box(Modifier.padding(start = 40.dp, 10.dp, 0.dp, 0.dp)) {
@@ -70,7 +105,7 @@ fun Profile(name: String) {
 }
 
 @Composable
-fun Avatar(name: String="",onClick:()->Unit = {}) {
+fun Avatar(name: String = "", onClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .height(50.dp)
@@ -82,22 +117,24 @@ fun Avatar(name: String="",onClick:()->Unit = {}) {
                 1.dp,
                 MaterialTheme.colors.primary,
                 shape = CircleShape,
-            ).clickable {
-                       onClick()
-            }
-    , verticalArrangement = Arrangement.Center,
+            )
+            .clickable {
+                onClick()
+            }, verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if(!name.isNullOrEmpty()){
-        Text(
-            text = name?.first().toString(),
-            color = MaterialTheme.colors.primary,
-            style = MaterialTheme.typography.h6
-        )
-        }else{
+        if (!name.isNullOrEmpty()) {
+            Text(
+                text = name.first().toString(),
+                color = MaterialTheme.colors.primary,
+                style = MaterialTheme.typography.h6
+            )
+        } else {
             Icon(
-                Icons.Filled.Person
-                , contentDescription = "person", tint = MaterialTheme.colors.primary)
+                Icons.Filled.Person,
+                contentDescription = "person",
+                tint = MaterialTheme.colors.primary
+            )
         }
     }
 }

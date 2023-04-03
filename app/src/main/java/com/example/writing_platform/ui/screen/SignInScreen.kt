@@ -1,9 +1,12 @@
 package com.example.writing_platform.ui.screen
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,19 +20,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.writing_platform.ui.composable.PasswordTextField
-
+import com.example.writing_platform.ui.theme.PinkLight
 
 @Composable
 fun SignInScreen(navController: NavController) {
-
-
     Column(
         modifier = Modifier
             .padding(10.dp)
-            .fillMaxHeight(),
-        verticalArrangement = Arrangement.Center
+            .fillMaxHeight()
+            .background(PinkLight),
+        verticalArrangement = Arrangement.Center,
     ) {
         Card() {
+            IconButton(onClick = {
+                navController.navigate("home")
+            }, modifier = Modifier.padding(10.dp)) {
+                Icon(
+                    Icons.Filled.ArrowBack,
+                    contentDescription = "",
+                    tint = MaterialTheme.colors.primary,
+                )
+            }
             Column(
                 Modifier
                     .padding(20.dp, 30.dp)
@@ -38,6 +49,7 @@ fun SignInScreen(navController: NavController) {
             ) {
                 var email by remember { mutableStateOf("") }
                 var password by remember { mutableStateOf("") }
+                Spacer(modifier = Modifier.padding(5.dp))
                 Text(
                     text = "Sign in",
                     color = MaterialTheme.colors.primary,
