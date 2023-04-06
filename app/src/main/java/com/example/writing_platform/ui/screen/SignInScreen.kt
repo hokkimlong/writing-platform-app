@@ -10,11 +10,11 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.compose.ui.platform.LocalContext
 import com.example.writing_platform.ui.composable.PasswordTextField
 import com.example.writing_platform.ui.theme.PinkLight
 import kotlinx.coroutines.CoroutineScope
@@ -29,12 +29,14 @@ fun SignInScreen(navController: NavController) {
     val scope = CoroutineScope(Dispatchers.Main)
     Column(
         modifier = Modifier
-            .padding(10.dp)
             .fillMaxHeight()
             .background(PinkLight),
         verticalArrangement = Arrangement.Center,
     ) {
-        Card() {
+        Card(
+            Modifier
+                .padding(10.dp,0.dp)
+        ) {
             IconButton(onClick = {
                 navController.navigate("home")
             }, modifier = Modifier.padding(10.dp)) {

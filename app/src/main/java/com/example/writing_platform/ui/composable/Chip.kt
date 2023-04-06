@@ -18,19 +18,24 @@ import androidx.compose.ui.unit.sp
 import com.example.writing_platform.ui.theme.LightGray
 
 @Composable
-fun Chip(value:String) {
+fun Chip(value: String, onClick: () -> Unit) {
     OutlinedButton(
-        onClick = { },
-        border = BorderStroke(1.dp,  LightGray),
+        onClick = onClick,
+        border = BorderStroke(1.dp, LightGray),
         shape = RoundedCornerShape(50),
-        colors = ButtonDefaults.buttonColors(backgroundColor =  LightGray),
-        contentPadding = PaddingValues(7.dp,0.dp),
+        colors = ButtonDefaults.buttonColors(backgroundColor = LightGray),
+        contentPadding = PaddingValues(7.dp, 0.dp),
 
         modifier = Modifier
             .defaultMinSize(minWidth = ButtonDefaults.MinWidth, minHeight = 1.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, ) {
-            Text(text = "#", fontWeight = FontWeight.Bold, color = MaterialTheme.colors.primary, fontSize =18.sp)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "#",
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colors.primary,
+                fontSize = 18.sp
+            )
             Text(text = value, fontWeight = FontWeight.Normal)
         }
     }

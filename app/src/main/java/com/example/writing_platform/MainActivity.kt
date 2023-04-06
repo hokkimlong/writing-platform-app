@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.writing_platform.ui.screen.ArticleDetail
 import com.example.writing_platform.ui.screen.HomeScreen
 import com.example.writing_platform.ui.screen.SignInScreen
@@ -40,8 +41,23 @@ fun Root() {
         composable("signup") {
             SignUpScreen(navController)
         }
-        composable("/article/{articleId}"){
-           ArticleDetail(navController)
+        composable(
+            "/article/{articleId}",
+            arguments = listOf(navArgument("articleid") { defaultValue = "" })
+        ) { backStackEntry ->
+            ArticleDetail(navController, backStackEntry.arguments?.getString("articleId"))
+        }
+        composable(
+            "/tag/{id}",
+            arguments = listOf(navArgument("id") { defaultValue = "" })
+        ) { backStackEntry ->
+            HomeScreen(navController, "Tag", backStackEntry.arguments?.getString("id"))
+        }
+        composable(
+            "/user/{id}",
+            arguments = listOf(navArgument("id") { defaultValue = "" })
+        ) { backStackEntry ->
+            HomeScreen(navController, "User", backStackEntry.arguments?.getString("id"))
         }
     }
 }

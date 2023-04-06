@@ -1,20 +1,17 @@
 package com.example.writing_platform.ui.screen
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,13 +21,52 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.writing_platform.api.HttpRequest
+import com.example.writing_platform.data.dto.Article
+import com.example.writing_platform.data.dto.Tag
+import com.example.writing_platform.data.dto.User
 import com.example.writing_platform.ui.composable.Chip
 import com.example.writing_platform.ui.composable.Logo
-import com.example.writing_platform.ui.theme.LightGray
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, type: String = "Home", id: String? = "") {
+    val scope = CoroutineScope(Dispatchers.Main)
+    var articles by remember {
+        mutableStateOf(arrayOf<Article>())
+    }
+    val isTag = type == "Tag"
+    val isUser = type == "User"
+    var headerText by remember {
+        mutableStateOf("")
+    }
+    LaunchedEffect(true) {
+        scope.launch {
+            try {
+                val tagId = if (isTag) id else ""
+                val userId = if (isUser) id else ""
+                val url = "/Articles?search=&tag=${tagId}&user=${userId}&limit=100&page=0"
+                articles = HttpRequest.get<Array<Article>>(
+                    url
+                )
+                if (isTag) {
+                    val tag = HttpRequest.get<Tag>("/Tags/${tagId}")
+                    headerText += "Tag #${tag.name}"
+                } else if (isUser) {
+                    val user = HttpRequest.get<User>("/Auth/user/${userId}")
+                    headerText += "User ${user.name}"
+                } else {
+                    headerText = "Latest"
+                }
+            } catch (e: Exception) {
+                println(e.printStackTrace())
+            }
+        }
+    }
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
@@ -66,19 +102,27 @@ fun HomeScreen(navController: NavController) {
                         TopAppBar(
                             backgroundColor = MaterialTheme.colors.surface,
                             content = {
-                                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     OutlinedTextField(
                                         value = "",
                                         onValueChange = {},
                                         shape = RoundedCornerShape(50),
                                         modifier = Modifier
-                                            .padding(5.dp,3.5.dp).fillMaxWidth().weight(6f),
-                                        placeholder = {Text("Search")},
+                                            .padding(5.dp, 3.5.dp)
+                                            .fillMaxWidth()
+                                            .weight(6f),
+                                        placeholder = { Text("Search") },
                                         colors = TextFieldDefaults.outlinedTextFieldColors(
                                             focusedBorderColor = MaterialTheme.colors.primary,
-                                            unfocusedBorderColor = MaterialTheme.colors.primary)
+                                            unfocusedBorderColor = MaterialTheme.colors.primary
+                                        )
                                     )
-                                    IconButton(modifier = Modifier.weight(1f),onClick = { searchToggle = false }) {
+                                    IconButton(
+                                        modifier = Modifier.weight(1f),
+                                        onClick = { searchToggle = false }) {
                                         Icon(
                                             Icons.Filled.Clear,
                                             contentDescription = "",
@@ -89,20 +133,6 @@ fun HomeScreen(navController: NavController) {
                             }
                         )
                     }
-//                    if (searchToggle) {
-//                        Card(Modifier.background(MaterialTheme.colors.surface)) {
-//                            Row() {
-//                                OutlinedTextField(value = "", onValueChange = {})
-//                                IconButton(onClick = { searchToggle = !searchToggle }) {
-//                                    Icon(
-//                                        Icons.Filled.Search,
-//                                        contentDescription = "",
-//                                        tint = MaterialTheme.colors.primary
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
                 }
             },
             content = {
@@ -113,15 +143,36 @@ fun HomeScreen(navController: NavController) {
                         .padding(10.dp, 0.dp)
                 ) {
                     item {
-                        Text(
-                            modifier = Modifier.padding(0.dp, 10.dp),
-                            text = "Latest",
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Light
-                        );
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            if (isTag || isUser) {
+                                IconButton(onClick = {
+                                    navController.popBackStack()
+                                }, modifier = Modifier.padding(0.dp, 2.dp)) {
+                                    Icon(
+                                        Icons.Filled.ArrowBack,
+                                        contentDescription = "",
+                                        tint = MaterialTheme.colors.primary,
+                                    )
+                                }
+                            }
+                            Text(
+                                modifier = Modifier.padding(0.dp, 5.dp),
+                                text = headerText,
+                                fontSize = 30.sp,
+                                fontWeight = FontWeight.Light
+                            );
+                        }
                     }
-                    items(10) {
-                        BlogCard(onClick = { navController.navigate("/article/1") })
+                    items(articles) { article ->
+                        BlogCard(
+                            article = article,
+                            onClick = { navController.navigate("/article/${article.id}") },
+                            onChipClick = { navController.navigate("/tag/$it") },
+                            onUserClick = { navController.navigate("/user/$it") }
+                        )
                         Spacer(modifier = Modifier.padding(5.dp))
                     }
                 }
@@ -142,34 +193,48 @@ fun HomeScreen(navController: NavController) {
 }
 
 @Composable
-fun BlogCard(onClick: () -> Unit) {
+fun BlogCard(
+    onClick: () -> Unit,
+    article: Article,
+    onChipClick: (id: Int) -> Unit,
+    onUserClick: (id: Int) -> Unit
+) {
     Card(
         Modifier
             .fillMaxWidth()
             .clickable { onClick() }) {
         Column(Modifier.padding(10.dp, 10.dp, 10.dp, 0.dp)) {
-            Profile(name = "Long")
+            Profile(user = article.user, onClick = onUserClick)
             Column(Modifier.padding(10.dp, 10.dp, 10.dp, 0.dp)) {
                 Text(
-                    text = "dude",
+                    text = article.title,
                     style = MaterialTheme.typography.h5,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colors.primary,
                     textDecoration = TextDecoration.Underline
                 )
-                Chip(value = "this is new")
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    for (tag in article.tags) {
+                        Chip(value = tag.name, onClick = { onChipClick(tag.id) })
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun Profile(name: String) {
+fun Profile(user: User, onClick: (id: Int) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Avatar(name)
+        Avatar(user.name, onClick = { onClick(user.id) })
         Box(Modifier.width(5.dp))
         Column() {
-            Text(text = name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.body1)
+            Text(
+                modifier = Modifier.clickable { onClick(user.id) },
+                text = user.name,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.body1
+            )
             Text(text = "Mar 30 (3 hours ago)", style = MaterialTheme.typography.caption)
         }
     }
