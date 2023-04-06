@@ -7,23 +7,26 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.writing_platform.ui.composable.PasswordTextField
 import com.example.writing_platform.ui.theme.PinkLight
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 @Composable
 fun SignInScreen(navController: NavController) {
+    val scope = CoroutineScope(Dispatchers.Main)
     Column(
         modifier = Modifier
             .padding(10.dp)
@@ -64,8 +67,14 @@ fun SignInScreen(navController: NavController) {
                 )
                 PasswordTextField(value = password, onValueChange = { password = it })
                 val context = LocalContext.current;
+
+
                 Button(onClick = {
                     Toast.makeText(context, email, Toast.LENGTH_SHORT).show()
+                    scope.launch {
+                        val result = withContext(Dispatchers.IO) { makeHttpRequest("http://localhost:8080/") }
+                        println(result)
+                    }
                 }, Modifier.fillMaxWidth()) {
                     Text("Sign in")
                 }
@@ -81,4 +90,13 @@ fun SignInScreen(navController: NavController) {
             }
         }
     }
+}
+
+suspend fun makeHttpRequest(url: String): String {
+    val client = OkHttpClient()
+    val request = Request.Builder()
+        .url(url)
+        .build()
+    val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
+    return response.body?.string() ?: ""
 }
