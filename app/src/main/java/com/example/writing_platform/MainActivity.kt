@@ -3,11 +3,12 @@ package com.example.writing_platform
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.writing_platform.data.dto.User
 import com.example.writing_platform.ui.screen.ArticleDetail
 import com.example.writing_platform.ui.screen.HomeScreen
 import com.example.writing_platform.ui.screen.SignInScreen
@@ -31,12 +32,20 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Root() {
     val navController = rememberNavController()
+    var authUser by remember() {
+        mutableStateOf(User(-1, "", ""))
+    }
+
+    fun updateUser(user: User) {
+        authUser = user
+    }
+
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
             HomeScreen(navController)
         }
         composable("signin") {
-            SignInScreen(navController)
+            SignInScreen(navController,updateUser)
         }
         composable("signup") {
             SignUpScreen(navController)
@@ -61,6 +70,3 @@ fun Root() {
         }
     }
 }
-
-
-

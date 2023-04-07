@@ -15,6 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.writing_platform.api.HttpRequest
+import com.example.writing_platform.data.dto.AuthDto
+import com.example.writing_platform.data.dto.User
 import com.example.writing_platform.ui.composable.PasswordTextField
 import com.example.writing_platform.ui.theme.PinkLight
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +28,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 @Composable
-fun SignInScreen(navController: NavController) {
+fun SignInScreen(navController: NavController, updateUser: (user: User) -> Unit) {
     val scope = CoroutineScope(Dispatchers.Main)
     Column(
         modifier = Modifier
@@ -35,7 +38,7 @@ fun SignInScreen(navController: NavController) {
     ) {
         Card(
             Modifier
-                .padding(10.dp,0.dp)
+                .padding(10.dp, 0.dp)
         ) {
             IconButton(onClick = {
                 navController.navigate("home")
@@ -70,12 +73,18 @@ fun SignInScreen(navController: NavController) {
                 PasswordTextField(value = password, onValueChange = { password = it })
                 val context = LocalContext.current;
 
-
                 Button(onClick = {
                     Toast.makeText(context, email, Toast.LENGTH_SHORT).show()
                     scope.launch {
-                        val result = withContext(Dispatchers.IO) { makeHttpRequest("http://localhost:8080/") }
-                        println(result)
+                        val result = withContext(Dispatchers.IO) {
+                            val signinData = object {
+                                val email = email
+                                val password = password
+                            }
+                            val auth = HttpRequest.post<AuthDto>("/Auth/login", signinData)
+                            updateUser(auth.user)
+                            navController.navigate("home")
+                        }
                     }
                 }, Modifier.fillMaxWidth()) {
                     Text("Sign in")

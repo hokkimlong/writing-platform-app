@@ -29,12 +29,10 @@ class HttpRequest() {
                     response.close()
                     res
                 }
-
             return gson.fromJson(result, T::class.java)
         }
 
         suspend inline fun <reified T> post(url: String, body: Any): T {
-
             val request = Request.Builder()
                 .url("$BASE_URL$url")
                 .post(gson.toJson(body).toRequestBody("application/json".toMediaType()))
@@ -47,13 +45,8 @@ class HttpRequest() {
                     response.close()
                     res
                 }
-
             return gson.fromJson(result, T::class.java)
         }
-
     }
 
-
 }
-
-

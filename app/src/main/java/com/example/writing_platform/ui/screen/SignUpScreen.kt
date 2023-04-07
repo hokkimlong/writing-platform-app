@@ -82,7 +82,8 @@ fun SignUpScreen(navController: NavController) {
                             val name = name
                             val password = password
                         }
-                        HttpRequest.post("/Auth", signupData)
+                        HttpRequest.post<Any>("/Auth", signupData)
+                        navController.navigate("signin")
                     }
                 }, Modifier.fillMaxWidth()) {
                     Text("Sign Up")

@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 fun ArticleDetail(navController: NavController, articleId: String?) {
     println("article Id $articleId")
 
-
     val scope = CoroutineScope(Dispatchers.Main)
 
     var article by remember {
@@ -38,7 +37,6 @@ fun ArticleDetail(navController: NavController, articleId: String?) {
             }
         }
     }
-
 
     Surface(
         modifier = Modifier.fillMaxHeight(),
