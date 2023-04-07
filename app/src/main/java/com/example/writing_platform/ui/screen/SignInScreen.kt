@@ -1,6 +1,5 @@
 package com.example.writing_platform.ui.screen
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,7 +27,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 @Composable
-fun SignInScreen(navController: NavController, updateUser: (user: User) -> Unit) {
+fun SignInScreen(navController: NavController, updateUser: (user: User,token:String) -> Unit) {
     val scope = CoroutineScope(Dispatchers.Main)
     Column(
         modifier = Modifier
@@ -41,7 +40,7 @@ fun SignInScreen(navController: NavController, updateUser: (user: User) -> Unit)
                 .padding(10.dp, 0.dp)
         ) {
             IconButton(onClick = {
-                navController.navigate("home")
+                navController.popBackStack()
             }, modifier = Modifier.padding(10.dp)) {
                 Icon(
                     Icons.Filled.ArrowBack,
@@ -74,17 +73,16 @@ fun SignInScreen(navController: NavController, updateUser: (user: User) -> Unit)
                 val context = LocalContext.current;
 
                 Button(onClick = {
-                    Toast.makeText(context, email, Toast.LENGTH_SHORT).show()
                     scope.launch {
                         val result = withContext(Dispatchers.IO) {
                             val signinData = object {
                                 val email = email
                                 val password = password
                             }
-                            val auth = HttpRequest.post<AuthDto>("/Auth/login", signinData)
-                            updateUser(auth.user)
-                            navController.navigate("home")
+                            HttpRequest.post<AuthDto>("/Auth/login", signinData)
                         }
+                        updateUser(result.user,"")
+                        navController.navigate("home")
                     }
                 }, Modifier.fillMaxWidth()) {
                     Text("Sign in")

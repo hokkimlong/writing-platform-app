@@ -3,7 +3,11 @@ package com.example.writing_platform
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -35,17 +39,33 @@ fun Root() {
     var authUser by remember() {
         mutableStateOf(User(-1, "", ""))
     }
-
-    fun updateUser(user: User) {
-        authUser = user
+    var authToken by remember() {
+        mutableStateOf("")
     }
 
-    NavHost(navController = navController, startDestination = "home") {
+    fun updateUser(user: User, token: String = "") {
+        authUser = user
+        authToken = token
+    }
+
+    fun signout() {
+        authUser = User()
+    }
+
+    val local = LocalFocusManager.current
+    NavHost(
+        navController = navController,
+        startDestination = "home",
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(onTap = {
+                local.clearFocus()
+            })
+        }) {
         composable("home") {
-            HomeScreen(navController)
+            HomeScreen(navController, user = authUser, signOut = { signout() })
         }
         composable("signin") {
-            SignInScreen(navController,updateUser)
+            SignInScreen(navController,updateUser = {(user,token)-> updateUser(user,token)})
         }
         composable("signup") {
             SignUpScreen(navController)
@@ -54,19 +74,48 @@ fun Root() {
             "/article/{articleId}",
             arguments = listOf(navArgument("articleid") { defaultValue = "" })
         ) { backStackEntry ->
-            ArticleDetail(navController, backStackEntry.arguments?.getString("articleId"))
+            ArticleDetail(
+                navController,
+                backStackEntry.arguments?.getString("articleId"),
+                user = authUser,
+                token = authToken
+            )
         }
         composable(
             "/tag/{id}",
             arguments = listOf(navArgument("id") { defaultValue = "" })
         ) { backStackEntry ->
-            HomeScreen(navController, "Tag", backStackEntry.arguments?.getString("id"))
+            HomeScreen(
+                navController,
+                "Tag",
+                backStackEntry.arguments?.getString("id"),
+                user = authUser,
+                signOut = { signout() }
+            )
         }
         composable(
             "/user/{id}",
             arguments = listOf(navArgument("id") { defaultValue = "" })
         ) { backStackEntry ->
-            HomeScreen(navController, "User", backStackEntry.arguments?.getString("id"))
+            HomeScreen(
+                navController,
+                "User",
+                backStackEntry.arguments?.getString("id"),
+                user = authUser,
+                signOut = { signout() }
+            )
+        }
+        composable(
+            "/search/{search}",
+            arguments = listOf(navArgument("search") { defaultValue = "" })
+        ) { backStackEntry ->
+            HomeScreen(
+                navController,
+                "Search",
+                backStackEntry.arguments?.getString("search"),
+                user = authUser,
+                signOut = { signout() }
+            )
         }
     }
 }

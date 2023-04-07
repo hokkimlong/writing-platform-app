@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,13 +37,20 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(navController: NavController, type: String = "Home", id: String? = "") {
+fun HomeScreen(
+    navController: NavController,
+    type: String = "Home",
+    id: String? = "",
+    user: User,
+    signOut: () -> Unit
+) {
     val scope = CoroutineScope(Dispatchers.Main)
     var articles by remember {
         mutableStateOf(arrayOf<Article>())
     }
     val isTag = type == "Tag"
     val isUser = type == "User"
+    val isSearch = type == "Search"
     var headerText by remember {
         mutableStateOf("")
     }
@@ -49,7 +59,8 @@ fun HomeScreen(navController: NavController, type: String = "Home", id: String? 
             try {
                 val tagId = if (isTag) id else ""
                 val userId = if (isUser) id else ""
-                val url = "/Articles?search=&tag=${tagId}&user=${userId}&limit=100&page=0"
+                val search = if (isSearch) id else ""
+                val url = "/Articles?search=${search}&tag=${tagId}&user=${userId}&limit=100&page=0"
                 articles = HttpRequest.get<Array<Article>>(
                     url
                 )
@@ -59,6 +70,8 @@ fun HomeScreen(navController: NavController, type: String = "Home", id: String? 
                 } else if (isUser) {
                     val user = HttpRequest.get<User>("/Auth/user/${userId}")
                     headerText += "User ${user.name}"
+                } else if (isSearch) {
+                    headerText += "Search $search"
                 } else {
                     headerText = "Latest"
                 }
@@ -68,8 +81,7 @@ fun HomeScreen(navController: NavController, type: String = "Home", id: String? 
         }
     }
     Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colors.background
+        modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
     ) {
         Scaffold(
             topBar = {
@@ -92,46 +104,69 @@ fun HomeScreen(navController: NavController, type: String = "Home", id: String? 
                                             tint = MaterialTheme.colors.primary
                                         )
                                     }
+                                    var menuExpanded by remember {
+                                        mutableStateOf(false)
+                                    }
                                     Avatar(onClick = {
-                                        navController.navigate("signin")
-                                    })
+                                        if (user.name.isEmpty()) {
+                                            navController.navigate("signin")
+                                        } else {
+                                            menuExpanded = true
+                                        }
+                                    }, name = user.name)
+                                    DropdownMenu(expanded = menuExpanded,
+                                        onDismissRequest = { menuExpanded = false }) {
+                                        DropdownMenuItem(onClick = {
+                                            signOut()
+                                            menuExpanded = false
+                                        }) {
+                                            Text("Logout")
+                                        }
+                                    }
                                 }
                             },
                         )
                     } else {
-                        TopAppBar(
-                            backgroundColor = MaterialTheme.colors.surface,
-                            content = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    OutlinedTextField(
-                                        value = "",
-                                        onValueChange = {},
-                                        shape = RoundedCornerShape(50),
-                                        modifier = Modifier
-                                            .padding(5.dp, 3.5.dp)
-                                            .fillMaxWidth()
-                                            .weight(6f),
-                                        placeholder = { Text("Search") },
-                                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                                            focusedBorderColor = MaterialTheme.colors.primary,
-                                            unfocusedBorderColor = MaterialTheme.colors.primary
-                                        )
+                        TopAppBar(backgroundColor = MaterialTheme.colors.surface, content = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                var searchValue by remember {
+                                    mutableStateOf("")
+                                }
+                                OutlinedTextField(
+                                    value = searchValue,
+                                    onValueChange = { searchValue = it },
+                                    shape = RoundedCornerShape(50),
+                                    modifier = Modifier
+                                        .padding(5.dp, 3.5.dp)
+                                        .fillMaxWidth()
+                                        .weight(6f),
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Search
+                                    ),
+                                    keyboardActions = KeyboardActions(onSearch = {
+                                        if (searchValue.isEmpty()) return@KeyboardActions
+                                        navController.navigate("/search/$searchValue")
+
+                                    }),
+                                    placeholder = { Text("Search") },
+                                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                                        focusedBorderColor = MaterialTheme.colors.primary,
+                                        unfocusedBorderColor = MaterialTheme.colors.primary
                                     )
-                                    IconButton(
-                                        modifier = Modifier.weight(1f),
-                                        onClick = { searchToggle = false }) {
-                                        Icon(
-                                            Icons.Filled.Clear,
-                                            contentDescription = "",
-                                            tint = MaterialTheme.colors.primary,
-                                        )
-                                    }
+                                )
+                                IconButton(modifier = Modifier.weight(1f),
+                                    onClick = { searchToggle = false }) {
+                                    Icon(
+                                        Icons.Filled.Clear,
+                                        contentDescription = "",
+                                        tint = MaterialTheme.colors.primary,
+                                    )
                                 }
                             }
-                        )
+                        })
                     }
                 }
             },
@@ -147,7 +182,7 @@ fun HomeScreen(navController: NavController, type: String = "Home", id: String? 
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
                         ) {
-                            if (isTag || isUser) {
+                            if (type != "Home") {
                                 IconButton(onClick = {
                                     navController.popBackStack()
                                 }, modifier = Modifier.padding(0.dp, 2.dp)) {
@@ -167,24 +202,26 @@ fun HomeScreen(navController: NavController, type: String = "Home", id: String? 
                         }
                     }
                     items(articles) { article ->
-                        BlogCard(
-                            article = article,
+                        BlogCard(article = article,
                             onClick = { navController.navigate("/article/${article.id}") },
                             onChipClick = { navController.navigate("/tag/$it") },
-                            onUserClick = { navController.navigate("/user/$it") }
-                        )
+                            onUserClick = { navController.navigate("/user/$it") })
                         Spacer(modifier = Modifier.padding(5.dp))
                     }
                 }
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { /* ... */ },
-                    elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp),
-                ) {
-                    /* FAB content */
-                    Icon(Icons.Filled.Create, contentDescription = "create")
-                }
+//                if (user.name.isNotEmpty()) {
+//                FloatingActionButton(
+//                    onClick = {
+//                        navController.navigate("/create")
+//                    },
+//                    elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp),
+//                ) {
+                /* FAB content */
+//                    Icon(Icons.Filled.Create, contentDescription = "create")
+//                }
+//                }
             },
             isFloatingActionButtonDocked = true,
 
@@ -256,7 +293,8 @@ fun Avatar(name: String = "", onClick: () -> Unit = {}) {
             )
             .clickable {
                 onClick()
-            }, verticalArrangement = Arrangement.Center,
+            },
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (!name.isNullOrEmpty()) {

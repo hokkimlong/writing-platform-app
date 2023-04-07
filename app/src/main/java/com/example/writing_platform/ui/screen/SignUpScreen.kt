@@ -30,7 +30,7 @@ fun SignUpScreen(navController: NavController) {
     ) {
         Card(Modifier.padding(10.dp)) {
             IconButton(onClick = {
-                navController.navigate("home")
+                navController.popBackStack()
             }, modifier = Modifier.padding(10.dp)) {
                 Icon(
                     Icons.Filled.ArrowBack,

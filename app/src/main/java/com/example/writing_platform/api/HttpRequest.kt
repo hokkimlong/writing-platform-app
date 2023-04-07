@@ -32,9 +32,10 @@ class HttpRequest() {
             return gson.fromJson(result, T::class.java)
         }
 
-        suspend inline fun <reified T> post(url: String, body: Any): T {
+        suspend inline fun <reified T> post(url: String, body: Any,token:String = ""): T {
             val request = Request.Builder()
                 .url("$BASE_URL$url")
+                .addHeader("Authorization","Bearer $token")
                 .post(gson.toJson(body).toRequestBody("application/json".toMediaType()))
                 .build()
             val result =
