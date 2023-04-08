@@ -83,7 +83,7 @@ fun ArticleDetail(navController: NavController, articleId: String?, user: User, 
                 }
                 Profile(user = article.user, onClick = {
                     navController.navigate("/user/$it")
-                })
+                }, createdAt = article.createdDateTime)
                 Column(modifier = Modifier.padding(10.dp, 10.dp)) {
                     Text(
                         text = article.title,
@@ -160,7 +160,7 @@ fun ArticleDetail(navController: NavController, articleId: String?, user: User, 
                                             style = MaterialTheme.typography.body1
                                         )
                                         Text(
-                                            text = " • Mar 30 (3 hours ago)",
+                                            text = " • ${comment.createdDateTime}",
                                             style = MaterialTheme.typography.caption
                                         )
                                     }

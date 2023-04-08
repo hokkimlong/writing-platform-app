@@ -33,6 +33,8 @@ import com.example.writing_platform.ui.composable.Logo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -241,7 +243,7 @@ fun BlogCard(
             .fillMaxWidth()
             .clickable { onClick() }) {
         Column(Modifier.padding(10.dp, 10.dp, 10.dp, 0.dp)) {
-            Profile(user = article.user, onClick = onUserClick)
+            Profile(user = article.user, onClick = onUserClick, createdAt = article.createdDateTime)
             Column(Modifier.padding(10.dp, 10.dp, 10.dp, 0.dp)) {
                 Text(
                     text = article.title,
@@ -261,7 +263,7 @@ fun BlogCard(
 }
 
 @Composable
-fun Profile(user: User, onClick: (id: Int) -> Unit) {
+fun Profile(user: User, onClick: (id: Int) -> Unit, createdAt: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Avatar(user.name, onClick = { onClick(user.id) })
         Box(Modifier.width(5.dp))
@@ -272,7 +274,7 @@ fun Profile(user: User, onClick: (id: Int) -> Unit) {
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.body1
             )
-            Text(text = "Mar 30 (3 hours ago)", style = MaterialTheme.typography.caption)
+            Text(text = createdAt.format(DateTimeFormatter.ISO_DATE), style = MaterialTheme.typography.caption)
         }
     }
 }

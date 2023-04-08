@@ -29,19 +29,23 @@ class HttpRequest() {
                     response.close()
                     res
                 }
+            println(result)
             return gson.fromJson(result, T::class.java)
         }
 
-        suspend inline fun <reified T> post(url: String, body: Any,token:String = ""): T {
-            val request = Request.Builder()
+        suspend inline fun <reified T> post(url: String, body: Any, token: String = ""): T {
+            var request = Request.Builder()
                 .url("$BASE_URL$url")
-                .addHeader("Authorization","Bearer $token")
-                .post(gson.toJson(body).toRequestBody("application/json".toMediaType()))
-                .build()
+            if (token.isNotEmpty()) {
+
+                request = request.addHeader("Authorization", "Bearer $token")
+            }
+            request =
+                request.post(gson.toJson(body).toRequestBody("application/json".toMediaType()))
             val result =
                 withContext(Dispatchers.IO) {
                     val response =
-                        client.newCall(request).execute()
+                        client.newCall(request.build()).execute()
                     val res = response.body?.string()
                     response.close()
                     res

@@ -27,7 +27,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 @Composable
-fun SignInScreen(navController: NavController, updateUser: (user: User,token:String) -> Unit) {
+fun SignInScreen(navController: NavController, updateUser: (user: User, token: String) -> Unit) {
     val scope = CoroutineScope(Dispatchers.Main)
     Column(
         modifier = Modifier
@@ -81,8 +81,8 @@ fun SignInScreen(navController: NavController, updateUser: (user: User,token:Str
                             }
                             HttpRequest.post<AuthDto>("/Auth/login", signinData)
                         }
-                        updateUser(result.user,"")
-                        navController.navigate("home")
+                        updateUser(result.user, result.token)
+                        navController.popBackStack()
                     }
                 }, Modifier.fillMaxWidth()) {
                     Text("Sign in")

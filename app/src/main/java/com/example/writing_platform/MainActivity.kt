@@ -43,7 +43,7 @@ fun Root() {
         mutableStateOf("")
     }
 
-    fun updateUser(user: User, token: String = "") {
+    fun updateUser(user: User, token: String) {
         authUser = user
         authToken = token
     }
@@ -65,7 +65,7 @@ fun Root() {
             HomeScreen(navController, user = authUser, signOut = { signout() })
         }
         composable("signin") {
-            SignInScreen(navController,updateUser = {(user,token)-> updateUser(user,token)})
+            SignInScreen(navController, updateUser = { user, token -> updateUser(user, token) })
         }
         composable("signup") {
             SignUpScreen(navController)
